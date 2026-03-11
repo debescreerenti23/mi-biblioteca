@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Biblioteca Personal | javilindj</title>
     <link rel="stylesheet" href="libros.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -14,8 +15,7 @@
     
         <div class="search-box">
             <div style="position: relative; flex: 1;">
-                <input type="text" id="book-input" placeholder="Título del libro o ISBN..." oninput="manejarAutocompletado()">
-            
+                <input type="text" id="book-input" placeholder="Título del libro o autor..." oninput="manejarAutocompletado()">
                 <div id="sugerencias" class="sugerencias-dropdown"></div>
             </div>
             <button onclick="buscarLibro()">Añadir</button>
@@ -23,22 +23,27 @@
     </header>
 
     <main class="estanteria">
-        <section class="categoria">
-            <h2>📖 Leyendo ahora</h2>
+        <section class="categoria" id="lista-leyendo-parent">
+            <h2>Leyendo ahora</h2>
             <div id="lista-leyendo" class="grid-libros"></div>
         </section>
 
-        <section class="categoria">
-            <h2>✅ Ya leídos</h2>
+        <section class="categoria" id="lista-leidos-parent">
+            <h2>Ya leídos</h2>
             <div id="lista-leidos" class="grid-libros"></div>
         </section>
 
-        <section class="categoria">
-            <h2>⏳ Pendientes</h2>
+        <section class="categoria" id="lista-futuro-parent">
+            <h2>Pendientes</h2>
             <div id="lista-futuro" class="grid-libros"></div>
         </section>
     </main>
+
+    <footer>
+        javilindj - All Rights Reserved &copy; <span id="year"></span>
+    </footer>
 </div>
+
 <div id="modal-libro" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="cerrarModal()">&times;</span>
@@ -52,6 +57,7 @@
         </div>
     </div>
 </div>
+
 <button class="theme-switch" onclick="toggleTheme()" id="theme-btn">🌙</button>
 
 <script src="libros.js"></script>
