@@ -223,60 +223,53 @@ h1 span {
    ========================================================================== */
 .grid-libros {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 30px;
+    /* Bajamos el mínimo de 180px a 140px */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 20px; /* Reducimos un poco el espacio entre ellas */
+    margin-top: 20px;
 }
 
 .libro-card {
     background: var(--card-bg);
-    border-radius: 15px;
+    border-radius: 12px; /* Bordes un poco más finos para tarjetas pequeñas */
     overflow: hidden;
     box-shadow: var(--shadow);
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
-.libro-card:hover {
-    transform: translateY(-8px);
-    border-color: var(--accent);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+.libro-info {
+    padding: 10px; /* Menos relleno para aprovechar el espacio */
 }
 
-.libro-card img {
-    width: 100%;
-    aspect-ratio: 2/3;
-    object-fit: cover;
-    cursor: pointer;
+.libro-titulo {
+    font-size: 0.85rem; /* Fuente ligeramente más pequeña */
+    line-height: 1.2;
+    height: 2.4em; /* Mantenemos las 2 líneas */
+    margin-bottom: 4px;
 }
 
-.libro-info { padding: 15px; }
-.libro-titulo { font-weight: bold; font-size: 0.95rem; margin: 0; height: 2.4em; overflow: hidden; }
-.libro-autor { font-size: 0.8rem; color: var(--text-sec); margin-top: 5px; }
+.libro-autor {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Si el nombre es largo, se corta con elegancia */
+}
 
 .libro-acciones {
-    padding: 10px;
-    display: flex;
-    gap: 8px;
-    background: rgba(0,0,0,0.02);
+    padding: 8px;
+    gap: 5px;
 }
-
 select.btn-status {
-    flex: 1;
-    padding: 6px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    border: 1px solid var(--border);
-    background: var(--card-bg);
-    color: var(--text-main);
+    padding: 4px;
+    font-size: 0.7rem; /* Select más pequeño */
 }
 
 .btn-eliminar {
-    background: #ff7675;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 8px;
-    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.8rem;
 }
 
 /* ==========================================================================
@@ -327,7 +320,7 @@ footer {
     border-top: 1px solid var(--border); /* O quítalo si prefieres el look sin líneas */
 }
 
-@media (max-width: 700px) {
-    .grid-libros { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+@media (max-width: 480px) {
+    .grid-libros { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) gap: 15px; }
     .modal-body { flex-direction: column; text-align: center; }
 }
