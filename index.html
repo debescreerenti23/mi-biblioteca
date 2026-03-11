@@ -39,6 +39,20 @@
         </section>
     </main>
 </div>
+<div id="modal-libro" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="cerrarModal()">&times;</span>
+        <div class="modal-body">
+            <img id="modal-portada" src="" alt="Portada grande">
+            <div class="modal-info">
+                <h2 id="modal-titulo"></h2>
+                <h3 id="modal-autor"></h3>
+                <div id="modal-descripcion"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<button class="theme-switch" onclick="toggleTheme()" id="theme-btn">🌙</button>
 
 <script src="libros.js"></script>
 </body>

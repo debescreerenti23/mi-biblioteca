@@ -1,54 +1,85 @@
 /* ==========================================================================
-   VARIABLES Y CONFIGURACIÓN BASE
+   VARIABLES Y TEMAS (Con Verde Rutina)
    ========================================================================== */
 :root {
-    --bg-color: #f8f9fa;        /* Gris muy suave, tipo papel de calidad */
+    /* Tema Claro */
+    --bg-color: #f0f2f5;
     --card-bg: #ffffff;
-    --text-main: #2d3436;       /* Negro suave para lectura descansada */
+    --text-main: #1a1a1a;
     --text-sec: #636e72;
-    --accent: #6c5ce7;          /* Un violeta elegante para botones */
-    --accent-hover: #a29bfe;
+    
+    /* EL VERDE DE TU APP DE RUTINA */
+    --accent: #2ecc71;         /* Verde esmeralda vibrante */
+    --accent-hover: #27ae60;   /* Verde un poco más oscuro para el hover */
+    
     --border: #dfe6e9;
-    --shadow: 0 4px 15px rgba(0,0,0,0.05);
+    --shadow: 0 10px 25px rgba(0,0,0,0.05);
+    
+    /* Colores de Estado */
+    --color-leyendo: #0984e3; 
+    --color-leido: var(--accent); /* Usamos el mismo verde para los leídos */
+    --color-futuro: #7f8c8d;
 }
 
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-main: #f5f6fa;
+    --text-sec: #b2bec3;
+    --border: #2d3436;
+    --shadow: 0 10px 30px rgba(0,0,0,0.4);
+    /* En modo oscuro el verde puede ser un pelín más claro para resaltar */
+    --accent: #2ecc71; 
+}
+
+/* ==========================================================================
+   ESTILOS BASE
+   ========================================================================== */
 body {
-    font-family: 'Georgia', serif; /* Usamos serif para ese toque "librería" */
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-main);
     margin: 0;
     padding: 0;
+    transition: background 0.3s, color 0.3s;
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 40px 20px;
 }
 
-/* ==========================================================================
-   HEADER Y BUSCADOR (Interfaz Limpia)
-   ========================================================================== */
 header {
     text-align: center;
     margin-bottom: 50px;
 }
 
 h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    font-weight: 700;
+    font-family: 'Georgia', serif;
+    font-size: 2.8rem;
+    margin-bottom: 30px;
 }
 
+/* ==========================================================================
+   BUSCADOR Y AUTOCOMPLETADO (Con detalles verdes)
+   ========================================================================== */
 .search-box {
     display: flex;
     gap: 10px;
-    max-width: 500px;
+    max-width: 600px;
     margin: 0 auto;
     background: var(--card-bg);
-    padding: 8px;
+    padding: 10px;
     border-radius: 15px;
     box-shadow: var(--shadow);
+    border: 2px solid var(--border);
+    transition: border-color 0.3s;
+}
+
+/* Resaltar el borde del buscador cuando estás escribiendo */
+.search-box:focus-within {
+    border-color: var(--accent);
 }
 
 .search-box input {
@@ -57,173 +88,174 @@ h1 {
     padding: 12px;
     font-size: 1rem;
     outline: none;
-    font-family: 'Segoe UI', sans-serif;
+    background: transparent;
+    color: var(--text-main);
 }
 
 .search-box button {
     background: var(--accent);
     color: white;
     border: none;
-    padding: 0 20px;
+    padding: 0 25px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: bold;
-    transition: 0.3s;
+    transition: background 0.2s, transform 0.1s;
 }
 
 .search-box button:hover {
     background: var(--accent-hover);
+    transform: scale(1.02);
+}
+
+.sugerencias-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 0 0 15px 15px;
+    box-shadow: var(--shadow);
+    z-index: 2000;
+    max-height: 350px;
+    overflow-y: auto;
+    display: none;
+    user-select: none;
+}
+
+.sugerencia-item {
+    padding: 12px;
+    display: flex;
+    gap: 15px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+}
+
+.sugerencia-item:hover {
+    background: var(--bg-color);
+    border-left: 4px solid var(--accent); /* Detalle verde al pasar el ratón */
 }
 
 /* ==========================================================================
-   GRID DE ESTANTERÍA (Bento Grid Style)
+   BOTÓN MODO OSCURO (Verde)
+   ========================================================================== */
+.theme-switch {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent); /* El mismo verde de los botones */
+    color: white;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    z-index: 4000;
+    transition: 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-switch:hover {
+    background: var(--accent-hover);
+    transform: rotate(15deg) scale(1.1);
+}
+
+/* ==========================================================================
+   ESTANTERÍA Y CATEGORÍAS
    ========================================================================== */
 .categoria {
-    margin-bottom: 40px;
+    margin-bottom: 50px;
 }
 
 .categoria h2 {
-    font-size: 1.2rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-sec);
-    border-bottom: 2px solid var(--border);
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding-bottom: 10px;
-    margin-bottom: 20px;
+    border-bottom: 3px solid var(--border);
 }
 
-/* Usamos Grid para que las portadas se alineen perfectamente */
+/* Resaltamos la sección de Leídos con tu verde de marca */
+#lista-leidos-parent h2 { 
+    color: var(--color-leido); 
+    border-color: var(--color-leido); 
+}
+
 .grid-libros {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
 }
 
-/* ==========================================================================
-   TARJETA DE LIBRO (El "Libro" físico)
-   ========================================================================== */
 .libro-card {
     background: var(--card-bg);
-    border-radius: 12px;
+    border-radius: 15px;
     overflow: hidden;
     box-shadow: var(--shadow);
-    transition: transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    position: relative;
     border: 1px solid var(--border);
+    transition: transform 0.3s, border-color 0.3s;
 }
 
 .libro-card:hover {
-    transform: translateY(-5px); /* Efecto de levante al pasar el ratón */
+    transform: translateY(-8px);
+    border-color: var(--accent); /* El borde se vuelve verde al hacer hover */
 }
 
-.libro-card img {
-    width: 100%;
-    aspect-ratio: 2/3; /* Proporción estándar de portada de libro */
-    object-fit: cover;
-    background-color: #eee;
-}
+/* ... Resto de estilos de tarjeta igual ... */
 
-.libro-info {
-    padding: 12px;
-}
+.libro-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; cursor: pointer; }
+.libro-info { padding: 15px; }
+.libro-titulo { font-weight: bold; font-size: 0.95rem; margin: 0; height: 2.4em; overflow: hidden; }
+.libro-autor { font-size: 0.8rem; color: var(--text-sec); margin-top: 5px; }
+.libro-acciones { padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border); }
 
-.libro-titulo {
-    font-size: 0.95rem;
-    font-weight: bold;
-    margin: 0 0 5px 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* Corta el texto a 2 líneas si es muy largo */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.libro-autor {
-    font-size: 0.8rem;
-    color: var(--text-sec);
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* Botones de acción dentro de la tarjeta */
-.libro-acciones {
-    display: flex;
-    padding: 10px;
-    gap: 5px;
-    background: #fdfdfd;
-}
-
-.btn-status {
+select.btn-status {
     flex: 1;
-    font-size: 0.7rem;
-    padding: 5px;
+    padding: 6px;
+    border-radius: 8px;
+    font-size: 0.75rem;
     cursor: pointer;
     border: 1px solid var(--border);
-    background: white;
-    border-radius: 5px;
+    background: var(--card-bg);
+    color: var(--text-main);
 }
 
 .btn-eliminar {
     background: #ff7675;
     color: white;
     border: none;
-    padding: 5px 8px;
-    border-radius: 5px;
+    padding: 5px 10px;
+    border-radius: 8px;
     cursor: pointer;
 }
 
-/* Responsivo para móviles */
-@media (max-width: 600px) {
-    .grid-libros {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 15px;
-    }
-}
-.sugerencias-dropdown {
-    position: absolute;
-    top: 100%; /* Justo debajo del input */
-    left: 0;
-    right: 0;
+/* ==========================================================================
+   MODAL DE DETALLES
+   ========================================================================== */
+.modal-content {
     background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 15px 15px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    z-index: 2000;
-    max-height: 300px;
-    overflow-y: auto;
-    display: none; 
-    /* Evita que se pueda seleccionar texto o interactuar como un input */
-    user-select: none; 
+    border-radius: 25px;
+    padding: 40px;
+    border-top: 8px solid var(--accent); /* Detalle verde superior en el modal */
 }
 
-/* Para que el buscador no se vea raro al abrir el menu */
-.search-box:has(#sugerencias[style*="display: block"]) {
-    border-radius: 15px 15px 0 0;
-}
+.modal-info h3 { color: var(--accent); } /* Autor en verde */
 
-.sugerencia-item {
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border);
-    transition: background 0.2s;
-}
+/* ... (Los estilos del modal que ya tenías) ... */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; }
+.modal-body { display: flex; gap: 30px; }
+#modal-portada { width: 220px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.close-modal { position: absolute; top: 20px; right: 25px; font-size: 2rem; cursor: pointer; }
 
-.sugerencia-item:hover {
-    background: var(--bg-color);
-}
-
-.sugerencia-item img {
-    width: 40px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
-}
-
-.sugerencia-texto {
-    font-size: 0.9rem;
-    font-family: 'Segoe UI', sans-serif;
+@media (max-width: 700px) {
+    .modal-body { flex-direction: column; align-items: center; text-align: center; }
+    .grid-libros { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 }

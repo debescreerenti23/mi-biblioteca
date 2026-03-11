@@ -1,33 +1,30 @@
 /**
- * BIBLIOTECA VIRTUAL - main.js
+ * BIBLIOTECA VIRTUAL PRO - main.js
  * Desarrollado por javilindj
- * Funcionalidades: Búsqueda API Google Books, Autocompletado, Gestión de estados y Persistencia.
+ * Incluye: API Google Books, Autocompletado, Persistencia y Modal de Detalles.
  */
 
 // --- 1. ESTADO DE LA APLICACIÓN ---
 let misLibros = JSON.parse(localStorage.getItem('biblioteca_personal')) || [];
-let timeoutBusqueda; // Para controlar el debouncing del autocompletado
+let timeoutBusqueda; 
 
 /**
- * --- 2. LÓGICA DE BÚSQUEDA Y API ---
+ * --- 2. LÓGICA DE AUTOCOMPLETADO (Búsqueda en vivo) ---
  */
 
-// Función que se dispara al escribir en el input (oninput)
 function manejarAutocompletado() {
     const input = document.getElementById('book-input');
     const query = input.value.trim();
     const dropdown = document.getElementById('sugerencias');
 
-    // Limpiamos el timer anterior para evitar múltiples llamadas seguidas
     clearTimeout(timeoutBusqueda);
 
-    // Si hay menos de 3 letras, ocultamos las sugerencias
     if (query.length < 3) {
         dropdown.style.display = 'none';
         return;
     }
 
-    // Esperamos 400ms después de que el usuario deja de escribir para llamar a la API
+    // Debouncing: Esperar 400ms para no saturar la API
     timeoutBusqueda = setTimeout(async () => {
         try {
             const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=5`);
@@ -39,41 +36,32 @@ function manejarAutocompletado() {
     }, 400);
 }
 
-// Muestra las coincidencias en el desplegable
 function mostrarSugerencias(libros) {
     const dropdown = document.getElementById('sugerencias');
-    
-    // Si no hay libros o la búsqueda está vacía, escondemos y salimos
+    dropdown.innerHTML = "";
+
     if (!libros || libros.length === 0) {
-        dropdown.innerHTML = "";
         dropdown.style.display = 'none';
         return;
     }
-
-    dropdown.innerHTML = ""; // Limpiamos contenido previo
 
     libros.forEach(item => {
         const info = item.volumeInfo;
         const div = document.createElement('div');
         div.className = 'sugerencia-item';
         
-        // Verificación ultra-segura de la imagen
-        let portadaUrl = "https://via.placeholder.com/40x60?text=No+Img";
-        if (info.imageLinks && info.imageLinks.smallThumbnail) {
-            portadaUrl = info.imageLinks.smallThumbnail.replace('http:', 'https:');
-        }
+        const portada = info.imageLinks ? info.imageLinks.smallThumbnail.replace('http:', 'https:') : "https://via.placeholder.com/40x60?text=No+Img";
 
         div.innerHTML = `
-            <img src="${portadaUrl}" alt="portada" style="pointer-events: none;">
+            <img src="${portada}" alt="portada" style="pointer-events: none;">
             <div class="sugerencia-texto" style="pointer-events: none;">
-                <strong>${info.title || 'Título desconocido'}</strong><br>
-                <small>${info.authors ? info.authors[0] : 'Autor desconocido'}</small>
+                <strong>${info.title}</strong><br>
+                <small>${info.authors ? info.authors[0] : 'Desconocido'}</small>
             </div>
         `;
 
-        // Al hacer clic, añadimos el libro
         div.onclick = (e) => {
-            e.stopPropagation(); // Evita interferencias
+            e.stopPropagation();
             seleccionarLibro(item);
             dropdown.style.display = 'none';
             document.getElementById('book-input').value = "";
@@ -86,17 +74,15 @@ function mostrarSugerencias(libros) {
 }
 
 /**
- * --- 3. GESTIÓN DE LA COLECCIÓN ---
+ * --- 3. GESTIÓN DE LIBROS ---
  */
 
-// Crea el objeto libro y lo guarda en el array principal
 function seleccionarLibro(item) {
     const info = item.volumeInfo;
     
-    // Evitar duplicados (opcional)
-    const existe = misLibros.find(l => l.titulo === info.title);
-    if (existe) {
-        alert("Este libro ya está en tu biblioteca.");
+    // Evitar que el usuario añada el mismo libro dos veces
+    if (misLibros.find(l => l.titulo === info.title)) {
+        alert("Este libro ya está en tu lista.");
         return;
     }
 
@@ -105,21 +91,19 @@ function seleccionarLibro(item) {
         titulo: info.title,
         autor: info.authors ? info.authors[0] : "Autor desconocido",
         portada: info.imageLinks ? info.imageLinks.thumbnail.replace('http:', 'https:') : "https://via.placeholder.com/150x200?text=Sin+Portada",
-        descripcion: info.description || "Sin descripción disponible.",
-        estado: 'futuro' // Por defecto: Pendiente
+        descripcion: info.description || "Este libro no tiene una descripción disponible en Google Books.",
+        estado: 'futuro'
     };
 
     misLibros.push(nuevoLibro);
     guardarYRenderizar();
 }
 
-// Función para el botón "Añadir" manual o tecla Enter
 async function buscarLibro() {
     const input = document.getElementById('book-input');
     const query = input.value.trim();
     if (!query) return;
 
-    // Ocultamos el dropdown si estaba abierto
     document.getElementById('sugerencias').style.display = 'none';
 
     try {
@@ -128,35 +112,44 @@ async function buscarLibro() {
         if (data.items && data.items.length > 0) {
             seleccionarLibro(data.items[0]);
             input.value = "";
-        } else {
-            alert("No se encontraron resultados.");
         }
-    } catch (e) {
-        console.error("Error en búsqueda manual:", e);
-    }
+    } catch (e) { console.error(e); }
 }
 
-// Cambiar de categoría (Leyendo, Leído, Futuro)
 function cambiarEstado(id, nuevoEstado) {
-    misLibros = misLibros.map(libro => {
-        if (libro.id === id) {
-            return { ...libro, estado: nuevoEstado };
-        }
-        return libro;
-    });
+    misLibros = misLibros.map(l => l.id === id ? { ...l, estado: nuevoEstado } : l);
     guardarYRenderizar();
 }
 
-// Borrar libro
 function eliminarLibro(id) {
-    if (confirm("¿Seguro que quieres eliminar este libro de tu biblioteca?")) {
-        misLibros = misLibros.filter(libro => libro.id !== id);
+    if (confirm("¿Eliminar este libro?")) {
+        misLibros = misLibros.filter(l => l.id !== id);
         guardarYRenderizar();
     }
 }
 
 /**
- * --- 4. RENDERIZADO Y PERSISTENCIA ---
+ * --- 4. MODAL DE DETALLES ---
+ */
+
+function verDetalles(id) {
+    const libro = misLibros.find(l => l.id === id);
+    if (!libro) return;
+
+    document.getElementById('modal-titulo').innerText = libro.titulo;
+    document.getElementById('modal-autor').innerText = libro.autor;
+    document.getElementById('modal-descripcion').innerHTML = libro.descripcion;
+    document.getElementById('modal-portada').src = libro.portada;
+
+    document.getElementById('modal-libro').style.display = 'flex';
+}
+
+function cerrarModal() {
+    document.getElementById('modal-libro').style.display = 'none';
+}
+
+/**
+ * --- 5. RENDERIZADO Y ARRANQUE ---
  */
 
 function renderizarBiblioteca() {
@@ -166,32 +159,27 @@ function renderizarBiblioteca() {
         futuro: document.getElementById('lista-futuro')
     };
 
-    // Limpiar HTML actual
     Object.values(secciones).forEach(s => { if(s) s.innerHTML = ""; });
 
     misLibros.forEach(libro => {
         const card = document.createElement('div');
         card.className = 'libro-card';
         card.innerHTML = `
-            <img src="${libro.portada}" alt="${libro.titulo}">
+            <img src="${libro.portada}" alt="${libro.titulo}" onclick="verDetalles(${libro.id})" style="cursor:pointer">
             <div class="libro-info">
                 <p class="libro-titulo">${libro.titulo}</p>
                 <p class="libro-autor">${libro.autor}</p>
             </div>
             <div class="libro-acciones">
                 <select class="btn-status" onchange="cambiarEstado(${libro.id}, this.value)">
-                    <option value="futuro" ${libro.estado === 'futuro' ? 'selected' : ''}>⏳ Pendiente</option>
-                    <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
-                    <option value="leidos" ${libro.estado === 'leidos' ? 'selected' : ''}>✅ Leído</option>
+                    <option value="futuro" ${libro.estado === 'futuro' ? 'selected' : ''}>Pendiente</option>
+                    <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>Leyendo</option>
+                    <option value="leidos" ${libro.estado === 'leidos' ? 'selected' : ''}>Leído</option>
                 </select>
                 <button class="btn-eliminar" onclick="eliminarLibro(${libro.id})">&times;</button>
             </div>
         `;
-        
-        // Verificamos que la sección existe antes de inyectar
-        if (secciones[libro.estado]) {
-            secciones[libro.estado].appendChild(card);
-        }
+        secciones[libro.estado].appendChild(card);
     });
 }
 
@@ -200,18 +188,43 @@ function guardarYRenderizar() {
     renderizarBiblioteca();
 }
 
-// Cerrar sugerencias al hacer clic fuera
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-box')) {
-        document.getElementById('sugerencias').style.display = 'none';
-    }
-});
+// Eventos globales
+window.onclick = (e) => {
+    if (e.target == document.getElementById('modal-libro')) cerrarModal();
+    if (!e.target.closest('.search-box')) document.getElementById('sugerencias').style.display = 'none';
+};
 
-// Soporte para tecla Enter en el buscador
 document.addEventListener('DOMContentLoaded', () => {
     renderizarBiblioteca();
-    
     document.getElementById('book-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') buscarLibro();
     });
+});
+
+/**
+ * --- LÓGICA DE MODO OSCURO ---
+ */
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById('theme-btn');
+    
+    // Cambiamos el atributo data-theme
+    if (body.getAttribute('data-theme') === 'dark') {
+        body.setAttribute('data-theme', 'light');
+        btn.innerText = "🌙";
+        localStorage.setItem('theme-biblioteca', 'light');
+    } else {
+        body.setAttribute('data-theme', 'dark');
+        btn.innerText = "☀️";
+        localStorage.setItem('theme-biblioteca', 'dark');
+    }
+}
+
+// Aplicar el tema guardado al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme-biblioteca') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-btn').innerText = savedTheme === 'dark' ? "☀️" : "🌙";
+    
+    renderizarBiblioteca(); // Tu función de siempre
 });
