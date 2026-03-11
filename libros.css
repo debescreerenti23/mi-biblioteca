@@ -1,0 +1,229 @@
+/* ==========================================================================
+   VARIABLES Y CONFIGURACIÓN BASE
+   ========================================================================== */
+:root {
+    --bg-color: #f8f9fa;        /* Gris muy suave, tipo papel de calidad */
+    --card-bg: #ffffff;
+    --text-main: #2d3436;       /* Negro suave para lectura descansada */
+    --text-sec: #636e72;
+    --accent: #6c5ce7;          /* Un violeta elegante para botones */
+    --accent-hover: #a29bfe;
+    --border: #dfe6e9;
+    --shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+body {
+    font-family: 'Georgia', serif; /* Usamos serif para ese toque "librería" */
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* ==========================================================================
+   HEADER Y BUSCADOR (Interfaz Limpia)
+   ========================================================================== */
+header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    outline: none;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.search-box button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.search-box button:hover {
+    background: var(--accent-hover);
+}
+
+/* ==========================================================================
+   GRID DE ESTANTERÍA (Bento Grid Style)
+   ========================================================================== */
+.categoria {
+    margin-bottom: 40px;
+}
+
+.categoria h2 {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-sec);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Usamos Grid para que las portadas se alineen perfectamente */
+.grid-libros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 25px;
+}
+
+/* ==========================================================================
+   TARJETA DE LIBRO (El "Libro" físico)
+   ========================================================================== */
+.libro-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid var(--border);
+}
+
+.libro-card:hover {
+    transform: translateY(-5px); /* Efecto de levante al pasar el ratón */
+}
+
+.libro-card img {
+    width: 100%;
+    aspect-ratio: 2/3; /* Proporción estándar de portada de libro */
+    object-fit: cover;
+    background-color: #eee;
+}
+
+.libro-info {
+    padding: 12px;
+}
+
+.libro-titulo {
+    font-size: 0.95rem;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Corta el texto a 2 líneas si es muy largo */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.libro-autor {
+    font-size: 0.8rem;
+    color: var(--text-sec);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Botones de acción dentro de la tarjeta */
+.libro-acciones {
+    display: flex;
+    padding: 10px;
+    gap: 5px;
+    background: #fdfdfd;
+}
+
+.btn-status {
+    flex: 1;
+    font-size: 0.7rem;
+    padding: 5px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 5px;
+}
+
+.btn-eliminar {
+    background: #ff7675;
+    color: white;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Responsivo para móviles */
+@media (max-width: 600px) {
+    .grid-libros {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 15px;
+    }
+}
+.sugerencias-dropdown {
+    position: absolute;
+    top: 100%; /* Justo debajo del input */
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    z-index: 2000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none; 
+    /* Evita que se pueda seleccionar texto o interactuar como un input */
+    user-select: none; 
+}
+
+/* Para que el buscador no se vea raro al abrir el menu */
+.search-box:has(#sugerencias[style*="display: block"]) {
+    border-radius: 15px 15px 0 0;
+}
+
+.sugerencia-item {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+}
+
+.sugerencia-item:hover {
+    background: var(--bg-color);
+}
+
+.sugerencia-item img {
+    width: 40px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.sugerencia-texto {
+    font-size: 0.9rem;
+    font-family: 'Segoe UI', sans-serif;
+}

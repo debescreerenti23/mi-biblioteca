@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Biblioteca Personal | javilindj</title>
+    <link rel="stylesheet" href="libros.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>📚 Mi Biblioteca</h1>
+    
+        <div class="search-box">
+            <div style="position: relative; flex: 1;">
+                <input type="text" id="book-input" placeholder="Título del libro o ISBN..." oninput="manejarAutocompletado()">
+            
+                <div id="sugerencias" class="sugerencias-dropdown"></div>
+            </div>
+            <button onclick="buscarLibro()">Añadir</button>
+        </div>
+    </header>
+
+    <main class="estanteria">
+        <section class="categoria">
+            <h2>📖 Leyendo ahora</h2>
+            <div id="lista-leyendo" class="grid-libros"></div>
+        </section>
+
+        <section class="categoria">
+            <h2>✅ Ya leídos</h2>
+            <div id="lista-leidos" class="grid-libros"></div>
+        </section>
+
+        <section class="categoria">
+            <h2>⏳ Pendientes</h2>
+            <div id="lista-futuro" class="grid-libros"></div>
+        </section>
+    </main>
+</div>
+
+<script src="libros.js"></script>
+</body>
+</html>
