@@ -61,13 +61,61 @@ body {
 
 header {
     text-align: center;
-    margin-bottom: 50px;
+    margin-bottom: 60px;
+    padding-top: 20px;
+}
+
+.header-content {
+    display: inline-block;
+    position: relative;
+}
+
+.header-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 5px 15px rgba(46, 204, 113, 0.3)); /* Sombra con tu verde rutina */
+    animation: floating 3s ease-in-out infinite;
 }
 
 h1 {
-    font-family: 'Georgia', serif;
-    font-size: 2.8rem;
-    margin-bottom: 30px;
+    font-family: 'Inter', sans-serif; /* Usamos la fuente moderna */
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin: 0;
+    color: var(--text-main);
+    line-height: 1;
+}
+
+h1 span {
+    display: block;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    color: var(--accent); /* Tu verde rutina */
+    font-weight: 400;
+    margin-top: 5px;
+}
+
+.header-subtitle {
+    margin-top: 15px;
+    color: var(--text-sec);
+    font-size: 1.1rem;
+    font-weight: 300;
+}
+
+/* Animación sutil para el icono */
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Ajuste para móviles */
+@media (max-width: 600px) {
+    h1 { font-size: 2.5rem; }
+    h1 span { font-size: 0.9rem; letter-spacing: 3px; }
 }
 
 /* ==========================================================================
