@@ -15,8 +15,9 @@
         <div class="header-content">
             <span class="header-icon">📖</span>
             <h1>Mi Biblioteca <span>Personal</span></h1>
-            <p class="header-subtitle">Gestiona tu colección digital con estilo</p>
+            <p class="header-subtitle" id="frase-lectura" style="color: var(--accent); font-style: italic;">Cargando inspiración...</p>
         </div>
+        <button onclick="exportarPDF()" class="btn-exportar">📥 Exportar PDF</button>
     
         <div class="search-box">
             <div style="position: relative; flex: 1;">
@@ -84,6 +85,9 @@
 
 
 <button class="theme-switch" onclick="toggleTheme()" id="theme-btn">🌙</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 <script src="libros.js"></script>
 </body>

@@ -1,8 +1,33 @@
+/* ==========================================================================
+   VARIABLES Y ESTADO
+   ========================================================================== */
+// Listado de frases motivacionales
+const frasesLectura = [
+    "Un libro es un regalo que puedes abrir una y otra vez.",
+    "Leer es soñar de la mano de otro.",
+    "No hay dos personas que lean el mismo libro.",
+    "La lectura es una conversación con los hombres más ilustres.",
+    "Un hogar sin libros es como un cuerpo sin alma.",
+    "Para viajar lejos, no hay mejor nave que un libro.",
+    "Leer te da un lugar a donde ir cuando tienes que quedarte donde estás.",
+    "La lectura es a la mente lo que el ejercicio al cuerpo."
+];
+
+function generarFraseAleatoria() {
+    const fraseElemento = document.getElementById('frase-lectura');
+    if (fraseElemento) {
+        const indice = Math.floor(Math.random() * frasesLectura.length);
+        fraseElemento.textContent = frasesLectura[indice];
+    }
+}
+
 let misLibros = JSON.parse(localStorage.getItem('biblioteca_personal')) || [];
 let timeoutBusqueda;
-let libroActualId = null; // Variable global para saber qué libro está abierto en el modal
+let libroActualId = null;
 
-// 1. AUTOCOMPLETADO USANDO OPEN LIBRARY
+/* ==========================================================================
+   AUTOCOMPLETADO (OPEN LIBRARY)
+   ========================================================================== */
 async function manejarAutocompletado() {
     const query = document.getElementById('book-input').value.trim();
     const dropdown = document.getElementById('sugerencias');
@@ -23,7 +48,6 @@ async function manejarAutocompletado() {
                 data.docs.forEach(book => {
                     const div = document.createElement('div');
                     div.className = 'sugerencia-item';
-                    
                     const coverId = book.cover_i;
                     const img = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-S.jpg` : "https://via.placeholder.com/40x60?text=No+Img";
 
@@ -40,36 +64,36 @@ async function manejarAutocompletado() {
                 dropdown.style.display = 'block';
             }
         } catch (e) {
-            console.error("Error en Open Library:", e);
+            console.error("Error en búsqueda:", e);
         }
     }, 500);
 }
 
-// 2. PROCESAR EL LIBRO SELECCIONADO
 function añadirLibroOpenLibrary(book) {
     const nuevoLibro = {
         id: Date.now(),
         titulo: book.title,
         autor: book.author_name ? book.author_name[0] : "Anónimo",
         portada: book.cover_i ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg` : "https://via.placeholder.com/150x200?text=Sin+Portada",
-        descripcion: book.first_sentence ? book.first_sentence[0] : "Sin descripción disponible en la biblioteca.",
+        descripcion: book.first_sentence ? book.first_sentence[0] : "Sin descripción disponible.",
         estado: 'futuro',
-        rating: 0,   // Nuevo campo
-        notas: ""    // Nuevo campo
+        rating: 0,
+        notas: ""
     };
 
     if (misLibros.find(l => l.titulo === nuevoLibro.titulo)) {
-        alert("Ya tienes este libro.");
+        alert("Este libro ya está en tu biblioteca.");
     } else {
         misLibros.push(nuevoLibro);
         guardarYRenderizar();
     }
-    
     document.getElementById('book-input').value = "";
     document.getElementById('sugerencias').style.display = 'none';
 }
 
-// 3. RENDERIZADO Y LÓGICA DE INTERFAZ
+/* ==========================================================================
+   RENDERIZADO DE LA BIBLIOTECA
+   ========================================================================== */
 function renderizarBiblioteca() {
     const listas = {
         leyendo: document.getElementById('lista-leyendo'),
@@ -82,12 +106,19 @@ function renderizarBiblioteca() {
     misLibros.forEach(libro => {
         const card = document.createElement('div');
         card.className = 'libro-card';
+        
+        // Generamos el HTML de las estrellas para la tarjeta
+        let estrellasHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            estrellasHTML += `<span class="${i <= libro.rating ? 'active' : ''}" onclick="event.stopPropagation(); puntuarDirecto(${libro.id}, ${i})">★</span>`;
+        }
+
         card.innerHTML = `
             <img src="${libro.portada}" onclick="verDetalles(${libro.id})" style="cursor:pointer">
             <div class="libro-info">
                 <strong class="libro-titulo">${libro.titulo}</strong>
                 <p>${libro.autor}</p>
-                <div class="stars-preview">${'★'.repeat(libro.rating)}${'☆'.repeat(5 - libro.rating)}</div>
+                <div class="stars-card">${estrellasHTML}</div>
             </div>
             <div class="libro-acciones">
                 <div class="select-wrapper">
@@ -104,66 +135,72 @@ function renderizarBiblioteca() {
     });
 }
 
-// 4. LÓGICA DEL MODAL (NOTAS Y ESTRELLAS)
+/* ==========================================================================
+   LÓGICA DE DETALLES, NOTAS Y PUNTUACIÓN
+   ========================================================================== */
 function verDetalles(id) {
     const libro = misLibros.find(l => l.id === id);
     if (!libro) return;
+    libroActualId = id;
 
-    libroActualId = id; // Guardamos qué libro estamos viendo
-
-    // Rellenamos el modal con la info del libro
     document.getElementById('modal-portada').src = libro.portada;
     document.getElementById('modal-titulo').textContent = libro.titulo;
     document.getElementById('modal-autor').textContent = libro.autor;
     document.getElementById('modal-descripcion').textContent = libro.descripcion;
     document.getElementById('notas-personales').value = libro.notas || "";
 
-    // Marcamos las estrellas guardadas
-    marcarEstrellas(libro.rating || 0);
-
-    // Mostramos el modal
+    actualizarEstrellasModal(libro.rating || 0);
     document.getElementById('modal-libro').style.display = "block";
 }
 
+// Puntuación desde el Modal
 function puntuar(estrellas) {
     const libro = misLibros.find(l => l.id === libroActualId);
     if (libro) {
         libro.rating = estrellas;
-        marcarEstrellas(estrellas);
+        actualizarEstrellasModal(estrellas);
         guardarYRenderizar();
     }
 }
 
-function marcarEstrellas(rating) {
+// Puntuación rápida desde la Tarjeta
+function puntuarDirecto(id, estrellas) {
+    const libro = misLibros.find(l => l.id === id);
+    if (libro) {
+        libro.rating = estrellas;
+        guardarYRenderizar();
+    }
+}
+
+function actualizarEstrellasModal(rating) {
     const stars = document.querySelectorAll('#modal-stars span');
-    stars.forEach((s, i) => {
-        s.classList.toggle('active', i < rating);
-    });
+    stars.forEach((s, i) => s.classList.toggle('active', i < rating));
 }
 
 function guardarNotas() {
     const libro = misLibros.find(l => l.id === libroActualId);
-    const texto = document.getElementById('notas-personales').value;
     if (libro) {
-        libro.notas = texto;
+        libro.notas = document.getElementById('notas-personales').value;
         guardarYRenderizar();
-        alert("¡Notas guardadas!");
+        alert("Notas guardadas correctamente.");
     }
 }
 
 function cerrarModal() {
     document.getElementById('modal-libro').style.display = "none";
-    document.getElementById('modal-portada').src = ""; // Limpieza para evitar el "texto fantasma"
+    document.getElementById('modal-portada').src = "";
 }
 
-// FUNCIONES AUXILIARES
+/* ==========================================================================
+   UTILIDADES Y TEMA
+   ========================================================================== */
 function cambiarEstado(id, nuevo) {
     misLibros = misLibros.map(l => l.id === id ? {...l, estado: nuevo} : l);
     guardarYRenderizar();
 }
 
 function eliminarLibro(id) {
-    if(confirm("¿Seguro que quieres eliminar este libro?")) {
+    if(confirm("¿Eliminar este libro de tu colección?")) {
         misLibros = misLibros.filter(l => l.id !== id);
         guardarYRenderizar();
     }
@@ -180,27 +217,64 @@ function toggleTheme() {
     const newTheme = isDark ? 'light' : 'dark';
     body.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    
-    // Actualizar icono del botón
-    const btn = document.getElementById('theme-btn');
-    btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    document.getElementById('theme-btn').textContent = newTheme === 'dark' ? '☀️' : '🌙';
 }
 
-// INICIALIZACIÓN
+/* ==========================================================================
+   INICIO
+   ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const yearSpan = document.getElementById('year');
     if (yearSpan) yearSpan.textContent = new Date().getFullYear();
     
-    // Cerrar modal al hacer clic fuera de él
     window.onclick = (event) => {
-        const modal = document.getElementById('modal-libro');
-        if (event.target == modal) cerrarModal();
+        if (event.target == document.getElementById('modal-libro')) cerrarModal();
     };
 });
 
 window.onload = () => {
     renderizarBiblioteca();
+    generarFraseAleatoria(); // <-- Nueva llamada
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
     document.getElementById('theme-btn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 };
+
+async function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Título del documento
+    doc.setFontSize(18);
+    doc.text("Mi Biblioteca Personal", 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 28);
+
+    // Mapeo de nombres de estado para que queden bonitos
+    const nombresEstado = {
+        'leyendo': 'Leyendo ahora',
+        'leidos': 'Leído',
+        'futuro': 'Pendiente'
+    };
+
+    // Preparar los datos de la tabla
+    const filas = misLibros.map(l => [
+        l.titulo,
+        l.autor,
+        nombresEstado[l.estado] || l.estado,
+        "★".repeat(l.rating),
+        l.notas || "-"
+    ]);
+
+    // Crear la tabla automáticamente
+    doc.autoTable({
+        startY: 35,
+        head: [['Título', 'Autor', 'Estado', 'Rating', 'Notas']],
+        body: filas,
+        theme: 'striped',
+        headStyles: { fillColor: [46, 204, 113] }, // El verde de tu app
+    });
+
+    // Guardar el archivo
+    doc.save("Mi_Biblioteca_javilindj.pdf");
+}
