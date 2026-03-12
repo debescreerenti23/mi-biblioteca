@@ -78,7 +78,9 @@ async function exportarPDF() {
         headStyles: { fillColor: [46, 204, 113] }, 
     });
 
-    doc.save("Mi_Biblioteca_Personal.pdf");
+    // Opción A: Nombre con fecha limpia (Recomendada)
+    const fechaCorta = new Date().toLocaleDateString().replace(/\//g, '-');
+    doc.save("Mi_Biblioteca_" + fechaCorta + ".pdf");
 }
 
 /* ==========================================================================
