@@ -54,6 +54,22 @@
 
 <div id="modal-libro" class="modal">
     <div class="modal-content">
+        <div class="modal-rating">
+    <p>Mi puntuación:</p>
+    <div class="stars" id="modal-stars">
+        <span onclick="puntuar(1)">★</span>
+        <span onclick="puntuar(2)">★</span>
+        <span onclick="puntuar(3)">★</span>
+        <span onclick="puntuar(4)">★</span>
+        <span onclick="puntuar(5)">★</span>
+    </div>
+</div>
+
+<div class="modal-notas">
+    <label for="notas-personales">Notas personales:</label>
+    <textarea id="notas-personales" placeholder="¿Qué te pareció este libro?"></textarea>
+    <button onclick="guardarNotas()" class="btn-guardar">Guardar Notas</button>
+</div>
         <span class="close-modal" onclick="cerrarModal()">&times;</span>
         <div class="modal-body">
             <img id="modal-portada" src="" alt="Portada grande">
