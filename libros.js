@@ -90,11 +90,13 @@ function renderizarBiblioteca() {
                 <p>${libro.autor}</p>
             </div>
             <div class="libro-acciones">
-                <select onchange="cambiarEstado(${libro.id}, this.value)">
-                    <option value="futuro" ${libro.estado === 'futuro' ? 'selected' : ''}>Pendiente</option>
-                    <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>Leyendo</option>
-                    <option value="leidos" ${libro.estado === 'leidos' ? 'selected' : ''}>Leído</option>
-                </select>
+                <div class="select-wrapper">
+                    <select class="select-relieve" onchange="cambiarEstado(${libro.id}, this.value)">
+                        <option value="futuro" ${libro.estado === 'futuro' ? 'selected' : ''}>Pendiente</option>
+                        <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>Leyendo</option>
+                        <option value="leidos" ${libro.estado === 'leidos' ? 'selected' : ''}>Leído</option>
+                    </select>
+                </div>
                 <button class="btn-eliminar" onclick="eliminarLibro(${libro.id})">×</button>
             </div>
         `;
