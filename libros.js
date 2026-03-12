@@ -1,7 +1,6 @@
 /* ==========================================================================
-   VARIABLES Y ESTADO
+   1. VARIABLES GLOBALES Y ESTADO
    ========================================================================== */
-// Listado de frases motivacionales
 const frasesLectura = [
     "Un libro es un regalo que puedes abrir una y otra vez.",
     "Leer es soñar de la mano de otro.",
@@ -13,20 +12,77 @@ const frasesLectura = [
     "La lectura es a la mente lo que el ejercicio al cuerpo."
 ];
 
-function generarFraseAleatoria() {
-    const fraseElemento = document.getElementById('frase-lectura');
-    if (fraseElemento) {
-        const indice = Math.floor(Math.random() * frasesLectura.length);
-        fraseElemento.textContent = frasesLectura[indice];
-    }
-}
-
 let misLibros = JSON.parse(localStorage.getItem('biblioteca_personal')) || [];
 let timeoutBusqueda;
 let libroActualId = null;
 
 /* ==========================================================================
-   AUTOCOMPLETADO (OPEN LIBRARY)
+   2. UI & EFECTOS (Frase, Temas, PDF)
+   ========================================================================== */
+function generarFraseAleatoria() {
+    const fraseElemento = document.getElementById('frase-lectura');
+    if (!fraseElemento) return;
+
+    const frase = frasesLectura[Math.floor(Math.random() * frasesLectura.length)];
+    fraseElemento.textContent = ""; 
+    
+    let i = 0;
+    function escribir() {
+        if (i < frase.length) {
+            fraseElemento.textContent += frase.charAt(i);
+            i++;
+            setTimeout(escribir, 50); // Corregido el cierre del paréntesis
+        }
+    }
+    escribir();
+}
+
+function toggleTheme() {
+    const body = document.body;
+    const isDark = body.getAttribute('data-theme') === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    const btn = document.getElementById('theme-btn');
+    if(btn) btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+}
+
+async function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Mi Biblioteca Personal", 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 28);
+
+    const nombresEstado = {
+        'leyendo': 'Leyendo ahora',
+        'leidos': 'Leído',
+        'futuro': 'Pendiente'
+    };
+
+    const filas = misLibros.map(l => [
+        l.titulo,
+        l.autor,
+        nombresEstado[l.estado] || l.estado,
+        "★".repeat(l.rating) + "☆".repeat(5 - l.rating),
+        l.notas || "-"
+    ]);
+
+    doc.autoTable({
+        startY: 35,
+        head: [['Título', 'Autor', 'Estado', 'Rating', 'Notas']],
+        body: filas,
+        theme: 'striped',
+        headStyles: { fillColor: [46, 204, 113] }, 
+    });
+
+    doc.save("Mi_Biblioteca_Personal.pdf");
+}
+
+/* ==========================================================================
+   3. BÚSQUEDA Y API (OPEN LIBRARY)
    ========================================================================== */
 async function manejarAutocompletado() {
     const query = document.getElementById('book-input').value.trim();
@@ -92,7 +148,7 @@ function añadirLibroOpenLibrary(book) {
 }
 
 /* ==========================================================================
-   RENDERIZADO DE LA BIBLIOTECA
+   4. GESTIÓN DE LA BIBLIOTECA (CRUD)
    ========================================================================== */
 function renderizarBiblioteca() {
     const listas = {
@@ -107,7 +163,6 @@ function renderizarBiblioteca() {
         const card = document.createElement('div');
         card.className = 'libro-card';
         
-        // Generamos el HTML de las estrellas para la tarjeta
         let estrellasHTML = '';
         for (let i = 1; i <= 5; i++) {
             estrellasHTML += `<span class="${i <= libro.rating ? 'active' : ''}" onclick="event.stopPropagation(); puntuarDirecto(${libro.id}, ${i})">★</span>`;
@@ -135,8 +190,25 @@ function renderizarBiblioteca() {
     });
 }
 
+function cambiarEstado(id, nuevo) {
+    misLibros = misLibros.map(l => l.id === id ? {...l, estado: nuevo} : l);
+    guardarYRenderizar();
+}
+
+function eliminarLibro(id) {
+    if(confirm("¿Eliminar este libro de tu colección?")) {
+        misLibros = misLibros.filter(l => l.id !== id);
+        guardarYRenderizar();
+    }
+}
+
+function guardarYRenderizar() {
+    localStorage.setItem('biblioteca_personal', JSON.stringify(misLibros));
+    renderizarBiblioteca();
+}
+
 /* ==========================================================================
-   LÓGICA DE DETALLES, NOTAS Y PUNTUACIÓN
+   5. DETALLES Y MODAL
    ========================================================================== */
 function verDetalles(id) {
     const libro = misLibros.find(l => l.id === id);
@@ -153,7 +225,6 @@ function verDetalles(id) {
     document.getElementById('modal-libro').style.display = "block";
 }
 
-// Puntuación desde el Modal
 function puntuar(estrellas) {
     const libro = misLibros.find(l => l.id === libroActualId);
     if (libro) {
@@ -163,7 +234,6 @@ function puntuar(estrellas) {
     }
 }
 
-// Puntuación rápida desde la Tarjeta
 function puntuarDirecto(id, estrellas) {
     const libro = misLibros.find(l => l.id === id);
     if (libro) {
@@ -192,89 +262,26 @@ function cerrarModal() {
 }
 
 /* ==========================================================================
-   UTILIDADES Y TEMA
-   ========================================================================== */
-function cambiarEstado(id, nuevo) {
-    misLibros = misLibros.map(l => l.id === id ? {...l, estado: nuevo} : l);
-    guardarYRenderizar();
-}
-
-function eliminarLibro(id) {
-    if(confirm("¿Eliminar este libro de tu colección?")) {
-        misLibros = misLibros.filter(l => l.id !== id);
-        guardarYRenderizar();
-    }
-}
-
-function guardarYRenderizar() {
-    localStorage.setItem('biblioteca_personal', JSON.stringify(misLibros));
-    renderizarBiblioteca();
-}
-
-function toggleTheme() {
-    const body = document.body;
-    const isDark = body.getAttribute('data-theme') === 'dark';
-    const newTheme = isDark ? 'light' : 'dark';
-    body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.getElementById('theme-btn').textContent = newTheme === 'dark' ? '☀️' : '🌙';
-}
-
-/* ==========================================================================
-   INICIO
+   6. INICIALIZACIÓN (EVENT LISTENERS)
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
+    // Año del footer
     const yearSpan = document.getElementById('year');
     if (yearSpan) yearSpan.textContent = new Date().getFullYear();
     
+    // Cerrar modal al hacer clic fuera
     window.onclick = (event) => {
-        if (event.target == document.getElementById('modal-libro')) cerrarModal();
+        const modal = document.getElementById('modal-libro');
+        if (event.target == modal) cerrarModal();
     };
-});
 
-window.onload = () => {
+    // Carga inicial
     renderizarBiblioteca();
-    generarFraseAleatoria(); // <-- Nueva llamada
+    generarFraseAleatoria();
+    
+    // Cargar tema guardado
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
-    document.getElementById('theme-btn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-};
-
-async function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    // Título del documento
-    doc.setFontSize(18);
-    doc.text("Mi Biblioteca Personal", 14, 20);
-    doc.setFontSize(10);
-    doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 28);
-
-    // Mapeo de nombres de estado para que queden bonitos
-    const nombresEstado = {
-        'leyendo': 'Leyendo ahora',
-        'leidos': 'Leído',
-        'futuro': 'Pendiente'
-    };
-
-    // Preparar los datos de la tabla
-    const filas = misLibros.map(l => [
-        l.titulo,
-        l.autor,
-        nombresEstado[l.estado] || l.estado,
-        "★".repeat(l.rating),
-        l.notas || "-"
-    ]);
-
-    // Crear la tabla automáticamente
-    doc.autoTable({
-        startY: 35,
-        head: [['Título', 'Autor', 'Estado', 'Rating', 'Notas']],
-        body: filas,
-        theme: 'striped',
-        headStyles: { fillColor: [46, 204, 113] }, // El verde de tu app
-    });
-
-    // Guardar el archivo
-    doc.save("Mi_Biblioteca_javilindj.pdf");
-}
+    const btn = document.getElementById('theme-btn');
+    if(btn) btn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+});

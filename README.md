@@ -27,6 +27,17 @@ Este proyecto ha sido desarrollado utilizando tecnologías web estándar para ga
 
 https://debescreerenti23.github.io/mi-biblioteca/
 
+## 🔒 Privacidad y Almacenamiento
+
+Esta aplicación ha sido diseñada bajo el concepto **Offline-First**. 
+
+* **Sin Cuentas:** No necesitas registrarte ni compartir tus datos personales para usar la biblioteca.
+* **Almacenamiento Local (LocalStorage):** Toda tu información (libros, notas, puntuaciones y preferencias de tema) se guarda exclusivamente en tu navegador. Esto significa que tus datos nunca salen de tu dispositivo, garantizando una privacidad total.
+* **Portabilidad:** Si deseas llevar tus datos a otro lugar, puedes usar la función de **Exportar a PDF** para generar un informe completo de tu colección en segundos.
+
+---
+*Nota: Al usar LocalStorage, si borras los datos de navegación o el historial de tu navegador, la biblioteca se reiniciará. ¡Asegúrate de exportar tu PDF si vas a hacer una limpieza profunda de tu equipo!*
+
 
 
 ## 👤 Autor
