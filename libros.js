@@ -91,7 +91,7 @@ function renderizarBiblioteca() {
             </div>
             <div class="libro-acciones">
                 <div class="select-wrapper">
-                    <select class="select-relieve" onchange="cambiarEstado(${libro.id}, this.value)">
+                    <select class="select-relieve" onchange="cambiarEstado(${libro.id}, this.value)" style = "border-radius: 8px; padding: 3px">
                         <option value="futuro" ${libro.estado === 'futuro' ? 'selected' : ''}>Pendiente</option>
                         <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>Leyendo</option>
                         <option value="leidos" ${libro.estado === 'leidos' ? 'selected' : ''}>Leído</option>
